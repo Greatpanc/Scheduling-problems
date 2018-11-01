@@ -243,7 +243,7 @@ def update_list(activity,mode):
     next_eventnode=activitylist[activity,1]
 
     activity_waited.remove(activity)
-
+    res_time.append([cur_time+datasets[activity,mode,0],activity,mode])
     if len(activity_waited)==0 and check_finish(eventlist_finish):
         eventlist_finish.append(event_num-2)
         activity_waited.append(activity_num-1)
@@ -258,7 +258,7 @@ def update_list(activity,mode):
             if flag:
                 for i in eventnode.predev:
                     activity_waited.append(event2activity[i,eventnode.its_id])
-    res_time.append([cur_time+datasets[activity,mode,0],activity,mode])
+    
     activitylist_finish.append([activity,mode,cur_time])
 
 """
@@ -276,14 +276,19 @@ def update_list(activity,mode):
 def go_a_step(activity,mode):
     global R1,R2,R3,cur_time
 
-    #时序约束,执行后当前时间满足时序约束
-    timeseries_constraint(activity)
+    if activity==activity_num-1:
+        cur_time=min([i[0] for i in res_time])
+        eventlist_finish.append(event_num-1)
+        activitylist_finish.append([activity,mode,cur_time])
+    else:
+        #时序约束,执行后当前时间满足时序约束
+        timeseries_constraint(activity)
 
-    #资源约束,执行后当前时间满足资源约束
-    resource_constraint(activity,mode)
+        #资源约束,执行后当前时间满足资源约束
+        resource_constraint(activity,mode)
 
-    #更新活动列表和已完成时间列表信息
-    update_list(activity,mode)
+        #更新活动列表和已完成时间列表信息
+        update_list(activity,mode)
 
 """
 	函数名：time_ahead(time)
@@ -310,7 +315,7 @@ if __name__=="__main__":
     beta = 1                        # 启发函数重要程度因子
     rho = 0.2                       # 信息素的挥发速度
     Q = 1                           # 品质因子
-    itermax = 1000                  # 最大迭代次数
+    itermax = 1000                   # 最大迭代次数
 
     etatable = get_etatable(activity_num)      # 初始化启发函数矩阵
     pheromonetable=init_pheromonetable(activity_num)   # 初始化信息素矩阵
